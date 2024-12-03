@@ -49,8 +49,14 @@ export class CommonDemoComponent implements OnInit, OnDestroy {
     { title: 'SCSS', language: 'css', code: require('./clipboard/clipboard.component.scss?raw') },
   ];
 
+  shapeIconHoverableSource: Array<DevuiSourceData> = [
+    { title: 'HTML', language: 'html', code: require('./shapeIconHoverable/shapeIconHoverable.component.html?raw') },
+    { title: 'TS', language: 'typescript', code: require('./shapeIconHoverable/shapeIconHoverable.component.ts?raw') },
+  ];
+
   navItems = [];
   subs: Subscription = new Subscription();
+
   constructor(private translate: TranslateService) {}
 
   ngOnInit() {
@@ -76,7 +82,8 @@ export class CommonDemoComponent implements OnInit, OnDestroy {
       { dAnchorLink: 'open-url', value: values['open-url'] },
       { dAnchorLink: 'download-file', value: values['download-file'] },
       { dAnchorLink: 'iframe-propagate', value: values['iframe-propagate'] },
-      { dAnchorLink: 'clipboard', value: values['clipboard'] },
+      { dAnchorLink: 'clipboard', value: values.clipboard },
+      { dAnchorLink: 'shapeIconHoverable', value: values.shapeIconHoverable },
       { dAnchorLink: 'lazy-load', value: values['lazy-load'] },
     ];
   }

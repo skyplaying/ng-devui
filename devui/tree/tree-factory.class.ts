@@ -63,7 +63,7 @@ export interface ITreeInput {
 }
 
 export class TreeNode implements ITreeNodeData {
-  constructor(public id, public parentId, public data) { }
+  constructor(public id, public parentId, public data) {}
 }
 
 export class TreeFactory {
@@ -204,15 +204,18 @@ export class TreeFactory {
 
   deleteNodeById(id: number | string, renderTree = true) {
     const node = this.nodes[id];
+    if (!node) {
+      return;
+    }
     const parentNode = this.nodes[node.parentId];
     this.removeChildNode(parentNode, node);
 
     const deleteItems = (nodeId) => {
       this.maintainCheckedNodeList(this.nodes[nodeId], false);
       const children = this.getChildrenById(nodeId);
-      this.nodes = omitBy<Dictionary<TreeNode>>(this.nodes, (_node) => {
+      this.nodes = omitBy(this.nodes, (_node) => {
         return _node.id === nodeId;
-      });
+      }) as Dictionary<TreeNode>;
       forEach(children, (child) => {
         deleteItems(child.id);
       });
@@ -320,16 +323,15 @@ export class TreeFactory {
       this.checkParentNodes(this.nodes[id]);
       break;
     case 'downward':
-      this.checkChildNodes(this.nodes[id], checked);
+      this.checkChildNodes(this.nodes[id], checked, this.nodes[id].data.isHide);
       break;
     case 'both':
       this.checkParentNodes(this.nodes[id]);
-      this.checkChildNodes(this.nodes[id], checked);
+      this.checkChildNodes(this.nodes[id], checked, this.nodes[id].data.isHide);
       break;
     case 'none':
       break;
     default:
-      break;
     }
     this.maintainCheckedNodeList(this.nodes[id], checked);
     return this.getCheckedNodes();
@@ -355,7 +357,7 @@ export class TreeFactory {
     }
   }
 
-  private checkChildNodes(node: TreeNode, checked: boolean) {
+  private checkChildNodes(node: TreeNode, checked: boolean, hasHiddenAncestor = undefined) {
     const { id } = node;
     const childrenNode = this.getChildrenById(id);
     if (childrenNode.length > 0) {
@@ -365,9 +367,10 @@ export class TreeFactory {
         if (!nodeData.disabled) {
           nodeData.isChecked = checked;
           nodeData.halfChecked = false;
+          nodeData.hasHiddenAncestor = hasHiddenAncestor;
           this.maintainCheckedNodeList(childNode, checked);
         }
-        this.checkChildNodes(childNode, checked);
+        this.checkChildNodes(childNode, checked, nodeData.isHide);
       });
       const childrenFullCheckedCount = childrenNode.filter(({ data: nodeData }) => nodeData.isChecked).length;
       const childrenCheckedCount = childrenNode.filter(({ data: nodeData }) => nodeData.isChecked || nodeData.halfChecked).length;
@@ -375,8 +378,24 @@ export class TreeFactory {
     }
   }
 
+  getLineage(node: TreeNode): Array<string> {
+    const { parentId } = node;
+    if (parentId) {
+      const parentNode = this.nodes[parentId];
+      return [node.id, ...this.getLineage(parentNode)];
+    } else {
+      return [node.id];
+    }
+  }
+
   getCheckedNodes(): Array<any> {
     return Array.from(this._checked);
+  }
+
+  getCheckedNodesWithoutHide(hideInVirtualScroll = false): Array<any> {
+    return Array.from(this._checked).filter(
+      (item: any) => !((hideInVirtualScroll ? item.data.hideInVirtualScroll : item.data.isHide) || item.data.hasHiddenAncestor)
+    );
   }
 
   getActivatedNodes(): Array<any> {
@@ -487,14 +506,19 @@ export class TreeFactory {
 
   public addChildNode(parentNode: TreeNode, childNode: TreeNode, index?) {
     if (parentNode) {
-      Array.isArray(parentNode.data.children)
-        ? index !== undefined
-          ? parentNode.data.children.splice(index, 0, childNode)
-          : parentNode.data.children.push(childNode)
-        : (parentNode.data.children = [childNode]);
+      if (Array.isArray(parentNode.data.children)) {
+        if (index !== undefined) {
+          parentNode.data.children.splice(index, 0, childNode);
+        } else {
+          parentNode.data.children.push(childNode);
+        }
+      } else {
+        parentNode.data.children = [childNode];
+      }
     } else {
       index !== undefined ? this._treeRoot.splice(index, 0, childNode) : this._treeRoot.push(childNode);
     }
+    this.nodes[childNode.id] = childNode;
   }
 
   private removeChildNode(parentNode: TreeNode, childNode: TreeNode) {
@@ -595,6 +619,9 @@ export class TreeFactory {
 
   public mergeTreeNodes(targetNode = this.treeRoot) {
     const mergeToNode = (node) => {
+      if (!node) {
+        return;
+      }
       if (node.data.children?.length === 1 && node.data.children[0]?.data?.children?.length !== 0) {
         node.data.title = node.data.title + ' / ' + node.data.children[0]?.data?.title;
         node.data.children = node.data.children[0]?.data?.children;

@@ -1,28 +1,23 @@
-import {
-  Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-  TemplateRef
-} from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, TemplateRef } from '@angular/core';
 import { LoadingStyle } from './loading.types';
 @Component({
   selector: 'd-loading',
-  template: `<div class="devui-loading-wrapper" [ngClass]="{ 'devui-loading-full': targetName === 'BODY' }">
+  template: `<div class="devui-loading-wrapper" [ngClass]="{ 'devui-loading-full': targetName === 'BODY' }" [style.zIndex]="zIndex">
     <ng-container *ngTemplateOutlet="loadingTemplateRef ? loadingTemplateRef : default"> </ng-container>
     <ng-template #default>
       <div
         class="devui-spinner-wrapper"
         [ngClass]="{ 'devui-fix-loading-position': !customPosition, 'devui-message-wrapper': !!message }"
-        [ngStyle]="{ 'z-index': zIndex, top: top, left: left }"
+        [ngStyle]="{ top: top, left: left }"
       >
         <div class="devui-busy-default-sign">
           <div *ngIf="loadingStyle === 'default'" class="devui-busy-default-spinner">
-            <div class="devui-loading-bar1"></div>
-            <div class="devui-loading-bar2"></div>
-            <div class="devui-loading-bar3"></div>
-            <div class="devui-loading-bar4"></div>
+            <svg viewBox="25 25 50 50">
+              <circle cx="50" cy="50" r="20" fill="none"></circle>
+            </svg>
+            <div class="devui-loading-dots">
+              <span *ngFor="let spinner of spinners"><i></i></span>
+            </div>
           </div>
           <div *ngIf="loadingStyle === 'infinity'" class="devui-infinity-loading-wrapper">
             <svg
@@ -91,19 +86,21 @@ export class LoadingComponent implements OnInit, OnChanges {
   @Input() target: Element;
   @Input() zIndex: number;
   @Input() loadingStyle: LoadingStyle = 'default';
+  spinners = new Array(12);
   targetName: string;
-  ngOnInit() {
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes.target && this.target) {
+      this.targetName = this.target.nodeName;
+    }
+  }
+
+  ngOnInit(): void {
     if (this.target) {
       this.targetName = this.target.nodeName;
     }
   }
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['target']) {
-      if (this.target) {
-        this.targetName = this.target.nodeName;
-      }
-    }
-  }
+
   // Will overwrite this method in modal service
   close() {}
 }

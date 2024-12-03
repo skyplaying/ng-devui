@@ -168,7 +168,7 @@
           *ngIf="!nodeTemplate && !treeNode.data?.editable"
           (dblclick)="nodeDblClick($event, treeNode)"
           (contextmenu)="contextmenuEvent($event, treeNode)"
-          class="devui-tree-node__title"
+          class="devui-tree-node__title devui-tree-drag-handle"
           [class.select-disabled]="treeNode.data.disableSelect"
           title="{{ treeNode.data.title }}"
         >
@@ -417,7 +417,7 @@
           *ngIf="!nodeTemplate && !treeNode.data?.editable"
           (dblclick)="nodeDblClick($event, treeNode)"
           (contextmenu)="contextmenuEvent($event, treeNode)"
-          class="devui-tree-node__title"
+          class="devui-tree-node__title devui-tree-drag-handle"
           [class.select-disabled]="treeNode.data.disableSelect"
           title="{{ treeNode.data.title }}"
         >

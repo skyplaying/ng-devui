@@ -4,7 +4,7 @@
       <d-icon
         class="devui-dropdown-default devui-dropdown-origin devui-page-size {{ size ? 'devui-page-size-' + size : '' }}"
         dDropDownToggle
-        [icon]="'icon-select-arrow'"
+        [icon]="'icon-chevron-down-2'"
         [rotate]="rotateDegrees"
       >
         <span iconPrefix>{{ pageSize }}</span>
@@ -20,7 +20,7 @@
         </li>
       </ul>
     </div>
-    <span style="margin-right: 8px">{{ i18nText?.perPage }},</span>
+    <span class="devui-per-page">{{ i18nText?.perPage }},</span>
   </ng-container>
   <div *ngIf="canViewTotal" class="devui-total-size">
     {{ totalItemText ? totalItemText + ': ' + (total | number) : i18nText?.totalItem(total | number) }}

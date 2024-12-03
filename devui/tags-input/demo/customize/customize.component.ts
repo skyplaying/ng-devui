@@ -1,12 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { TagsInputComponent } from 'ng-devui/tags-input';
 
 @Component({
   selector: 'd-tags-input-customize',
   templateUrl: './customize.component.html',
 })
 export class TagsInputDemoCustomizeComponent implements OnInit {
+  @ViewChild(TagsInputComponent) tagInputItem: TagsInputComponent;
   tagList = [];
   suggestionList = [];
+  maxLength = 12;
+  errorMsg = `A maximum of ${this.maxLength} characters are allowed.`;
+  isError = false;
+  canGenerate = true;
 
   ngOnInit() {
     this.suggestionList = [
@@ -24,8 +30,16 @@ export class TagsInputDemoCustomizeComponent implements OnInit {
 
   customCheck = (tag: string | { name: string }) => {
     const str = typeof tag === 'string' ? tag : tag.name;
-    return str.indexOf('item') >= 0;
+    const result = str.indexOf('item') >= 0;
+    if (this.tagInputItem) {
+      this.tagInputItem.generateOptionFromInput = result;
+    }
+    return result;
   };
+
+  getSearchValue(value) {
+    this.isError = value.length === this.maxLength;
+  }
 
   getTagValue(value) {
     console.log(value);

@@ -7,7 +7,7 @@ import { Subscription } from 'rxjs';
   selector: 'd-modal-demo',
   templateUrl: './modal-demo.component.html',
   styles: [':host ::ng-deep d-button:not(first-child) { margin-left: 8px }'],
-  })
+})
 export class ModalDemoComponent implements OnInit, OnDestroy {
   basicSource: Array<DevuiSourceData> = [
     { title: 'HTML', language: 'xml', code: require('./basic/basic.component.html?raw') },
@@ -116,7 +116,7 @@ export class ModalDemoComponent implements OnInit, OnDestroy {
       { dAnchorLink: 'configure-button-to-get-focus-automatically', value: values['configure-button-to-get-focus-automatically'] },
       { dAnchorLink: 'template-content', value: values['template-content'] },
       { dAnchorLink: 'template-fixed', value: values['template-fixed'] },
-      { dAnchorLink: 'cases', value: values['cases'] },
+      { dAnchorLink: 'cases', value: values.cases },
     ];
   }
 

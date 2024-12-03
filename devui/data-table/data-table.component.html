@@ -10,10 +10,12 @@
     <div
       *ngIf="fixHeader"
       #fixHeaderContainerRef
-      class="table-wrap"
-      [style.overflow-x]="'hidden'"
-      [style.scrollbar-width]="'none'"
-      [style.overflow-y]="'scroll'"
+      class="table-wrap devui-fix-header"
+      [ngClass]="{
+        'shadow-fix-header': headerBg
+      }"
+      [style.overflow-x]="dataSource?.length ? 'hidden' : 'auto'"
+      [style.overflow-y]="dataSource?.length ? 'scroll' : 'hidden'"
       [style.max-height]="maxHeight ? maxHeight : null"
       [style.max-width]="maxWidth ? maxWidth : null"
       [style.width]="!maxWidth ? tableWidth : null"
@@ -41,6 +43,7 @@
       (loadMore)="onLoadMore($event)"
       *ngIf="!virtualScroll; else scrollViewTpl"
       class="devui-scrollbar"
+      [style.overflow-x]="dataSource?.length || !fixHeader ? 'auto' : 'hidden'"
       [ngClass]="{
         'scroll-view': scrollable,
         'overflow-overlay': tableOverflowType === 'overlay',

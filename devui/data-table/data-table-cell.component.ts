@@ -11,13 +11,15 @@ import {
   OnDestroy,
   OnInit,
   SimpleChange,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
+import { I18nFormat, I18nService } from 'ng-devui/i18n';
 import { InputNumberComponent } from 'ng-devui/input-number';
 import { SelectComponent } from 'ng-devui/select';
 import { TreeSelectComponent } from 'ng-devui/tree-select';
 import { stopPropagationIfExist } from 'ng-devui/utils';
-import { fromEvent, Subscription } from 'rxjs';
+import { Subject, Subscription, fromEvent } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { DATA_TABLE_ROW } from './data-table-row.token';
 import { DATA_TABLE } from './data-table.token';
 import { EditorDirective } from './editor-host.directive';
@@ -55,45 +57,52 @@ export class DataTableCellComponent implements OnInit, OnChanges, OnDestroy {
   fieldEditDenied: boolean;
   templateEditorActive: boolean; // 通过模板生成的编辑控件激活
   dynamicEditorActive: boolean; // 动态生成的编辑控件激活
+  unsubscribe$ = new Subject<void>();
+  lang: any;
 
-  constructor(@Inject(DATA_TABLE) public dt: any, private changeDetectorRef: ChangeDetectorRef,
-              private componentFactoryResolver: ComponentFactoryResolver,
-              @Inject(DATA_TABLE_ROW) public rowComponent: any, private cellRef: ElementRef, private ngZone: NgZone) {
-
-  }
+  constructor(
+    @Inject(DATA_TABLE) public dt: any,
+    @Inject(DATA_TABLE_ROW) public rowComponent: any,
+    private i18n: I18nService,
+    private changeDetectorRef: ChangeDetectorRef,
+    private componentFactoryResolver: ComponentFactoryResolver,
+    private cellRef: ElementRef,
+    private ngZone: NgZone
+  ) {}
 
   ngOnInit(): void {
-    this.forceUpdateSubscription = this.rowComponent.forceUpdateEvent.subscribe(_ => this.forceUpdate());
+    this.forceUpdateSubscription = this.rowComponent.forceUpdateEvent.subscribe(() => this.forceUpdate());
     if (this.column.editable) {
-      this.tdMousedownSubscription = fromEvent(this.cellRef.nativeElement, 'mousedown').subscribe(event => {
+      this.tdMousedownSubscription = fromEvent(this.cellRef.nativeElement, 'mousedown').subscribe(() => {
         this.clickInTd = true;
       });
 
-      this.tdMouseupSubscription = fromEvent(this.cellRef.nativeElement, 'mouseup').subscribe(event => {
+      this.tdMouseupSubscription = fromEvent(this.cellRef.nativeElement, 'mouseup').subscribe(() => {
         this.clickInTd = false;
       });
     }
     this.ngZone.runOutsideAngular(() => {
-      this.cellRef.nativeElement.addEventListener(
-        'mouseup',
-        this.onCellClick.bind(this)
-      );
-      this.cellRef.nativeElement.addEventListener(
-        'dblclick',
-        this.onCellDBClick.bind(this)
-      );
+      this.cellRef.nativeElement.addEventListener('mouseup', this.onCellClick.bind(this));
+      this.cellRef.nativeElement.addEventListener('dblclick', this.onCellDBClick.bind(this));
     });
+    this.lang = I18nFormat.getLocaleAndLang().currentLanguage;
+    this.i18n
+      .langChange()
+      .pipe(takeUntil(this.unsubscribe$))
+      .subscribe(() => {
+        this.lang = I18nFormat.getLocaleAndLang().currentLanguage;
+      });
   }
 
   ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
-    const rowItem = changes['rowItem'];
+    const rowItem = changes.rowItem;
     if (rowItem) {
       this.updateEditable(rowItem);
     }
   }
 
   updateEditable(rowItem) {
-    const currentConfig = rowItem.currentValue['$editDeniedConfig'];
+    const currentConfig = rowItem.currentValue.$editDeniedConfig;
     if (!currentConfig) {
       if (this.fieldEditDenied) {
         this.fieldEditDenied = false;
@@ -122,7 +131,7 @@ export class DataTableCellComponent implements OnInit, OnChanges, OnDestroy {
       rowItem: this.rowItem,
       cellComponent: this,
       rowComponent: this.rowComponent,
-      event: $event
+      event: $event,
     };
 
     this.clickCount++;
@@ -144,7 +153,7 @@ export class DataTableCellComponent implements OnInit, OnChanges, OnDestroy {
       column: this.column,
       rowItem: this.rowItem,
       cellComponent: this,
-      rowComponent: this.rowComponent
+      rowComponent: this.rowComponent,
     };
     this.dt.onCellDBClick(cellSelectedEventArg);
   }
@@ -178,7 +187,7 @@ export class DataTableCellComponent implements OnInit, OnChanges, OnDestroy {
       column: this.column,
       rowItem: this.rowItem,
       cellComponent: this,
-      rowComponent: this.rowComponent
+      rowComponent: this.rowComponent,
     });
   }
 
@@ -194,15 +203,12 @@ export class DataTableCellComponent implements OnInit, OnChanges, OnDestroy {
     if (this.forceUpdateSubscription) {
       this.unSubscription(this.forceUpdateSubscription);
     }
-
     if (this.documentClickSubscription) {
       this.unSubscription(this.documentClickSubscription);
     }
-
     if (this.cellEditorClickSubscription) {
       this.unSubscription(this.cellEditorClickSubscription);
     }
-
     if (this.cellActionSubscription) {
       this.unSubscription(this.cellActionSubscription);
     }
@@ -211,6 +217,9 @@ export class DataTableCellComponent implements OnInit, OnChanges, OnDestroy {
     }
     if (this.tdMouseupSubscription) {
       this.unSubscription(this.tdMouseupSubscription);
+    }
+    if (this.unsubscribe$) {
+      this.unsubscribe$.unsubscribe();
     }
   }
 
@@ -237,7 +246,6 @@ export class DataTableCellComponent implements OnInit, OnChanges, OnDestroy {
       break;
     default:
       this.templateEditorActive = true;
-      break;
     }
 
     if (editorComponent) {
@@ -282,32 +290,28 @@ export class DataTableCellComponent implements OnInit, OnChanges, OnDestroy {
         column: this.column,
         rowItem: this.rowItem,
         cellComponent: this,
-        rowComponent: this.rowComponent
+        rowComponent: this.rowComponent,
       };
       if (this.column.editable && this.editModel === 'cell') {
         this.isCellEdit = true;
         this.creatCellEditor();
-        this.documentClickSubscription = this.dt.documentClickEvent.subscribe(
-          event => {
-            const containTarget = !this.cellRef.nativeElement.contains(event.target) && !this.clickInTd;
-            const flag = this.dt.beforeCellEditEnd && containTarget ? this.dt.beforeCellEditEnd(this.rowItem, this.column) : true;
-            if ((event === 'cancel' || containTarget) && flag) {
-              this.ngZone.run(() => {
-                this.finishCellEdit();
-              });
-            }
-            this.clickInTd = false;
-          }
-        );
-        this.cellEditorClickSubscription = this.dt.cellEditorClickEvent.subscribe(
-          event => {
-            const containTarget = this.cellRef.nativeElement.contains(event.target);
-            const flag = (this.dt.beforeCellEditEnd && !containTarget) ? this.dt.beforeCellEditEnd(this.rowItem, this.column) : true;
-            if (!containTarget && flag) {
+        this.documentClickSubscription = this.dt.documentClickEvent.subscribe((event) => {
+          const containTarget = !this.cellRef.nativeElement.contains(event.target) && !this.clickInTd;
+          const flag = this.dt.beforeCellEditEnd && containTarget ? this.dt.beforeCellEditEnd(this.rowItem, this.column) : true;
+          if ((event === 'cancel' || containTarget) && flag) {
+            this.ngZone.run(() => {
               this.finishCellEdit();
-            }
+            });
           }
-        );
+          this.clickInTd = false;
+        });
+        this.cellEditorClickSubscription = this.dt.cellEditorClickEvent.subscribe((event) => {
+          const containTarget = this.cellRef.nativeElement.contains(event.target);
+          const flag = this.dt.beforeCellEditEnd && !containTarget ? this.dt.beforeCellEditEnd(this.rowItem, this.column) : true;
+          if (!containTarget && flag) {
+            this.finishCellEdit();
+          }
+        });
         this.dt.onCellEditStart(cellSelectedEventArg);
       }
     });

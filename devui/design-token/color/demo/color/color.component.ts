@@ -37,16 +37,16 @@ export class ColorComponent implements OnInit, OnDestroy {
   dataSource = new Map();
   i18nText;
   swatchesList = {};
-
-
   colors = [];
+  showFormColor = false;
+
   constructor(private translate: TranslateService) {
     this.setI18n();
   }
 
   ngOnInit() {
     if (typeof window !== undefined) {
-      this.themeService = window['devuiThemeService'];
+      this.themeService = (window as any).devuiThemeService;
       this.changeValueInTable();
       if (this.themeService.eventBus) {
         this.themeService.eventBus.add('themeChanged', this.changeValueInTable);
@@ -62,52 +62,52 @@ export class ColorComponent implements OnInit, OnDestroy {
       if (!(theme.data[key].startsWith('#') || theme.data[key].startsWith('rgba'))) {
         continue;
       }
-      if (key.includes('bg') || this.bgColorKey.some(item => key.includes(item))) {
+      if (key.includes('bg') || this.bgColorKey.some((item) => key.includes(item))) {
         const obj = {
           name: '$' + key,
           type: 'background',
           value: theme.data[key],
-          description: this.i18nText ? this.i18nText[key] : ''
+          description: this.i18nText ? this.i18nText[key] : '',
         };
         this.colorList.push(obj);
-      } else if (this.shadowColorKey.some(item => key.includes(item))) {
+      } else if (this.shadowColorKey.some((item) => key.includes(item))) {
         const obj = {
           name: key,
           type: 'shadow',
           value: theme.data[key],
-          description: this.i18nText ? this.i18nText[key] : ''
+          description: this.i18nText ? this.i18nText[key] : '',
         };
         this.colorList.push(obj);
-      } else if (this.textColorKey.some(item => key.includes(item))) {
+      } else if (this.textColorKey.some((item) => key.includes(item))) {
         const obj = {
           name: key,
           type: 'text',
           value: theme.data[key],
-          description: this.i18nText ? this.i18nText[key] : ''
+          description: this.i18nText ? this.i18nText[key] : '',
         };
         this.colorList.push(obj);
-      } else if (this.borderColorKey.some(item => key.includes(item))) {
+      } else if (this.borderColorKey.some((item) => key.includes(item))) {
         const obj = {
           name: key,
           type: 'border',
           value: theme.data[key],
-          description: this.i18nText ? this.i18nText[key] : ''
+          description: this.i18nText ? this.i18nText[key] : '',
         };
         this.colorList.push(obj);
-      } else if (this.statusColorKey.some(item => key.includes(item))) {
+      } else if (this.statusColorKey.some((item) => key.includes(item))) {
         const obj = {
           name: key,
           type: 'status',
           value: theme.data[key],
-          description: this.i18nText ? this.i18nText[key] : ''
+          description: this.i18nText ? this.i18nText[key] : '',
         };
         this.colorList.push(obj);
-      } else if (this.brandKey.some(item => key.includes(item))) {
+      } else if (this.brandKey.some((item) => key.includes(item))) {
         const obj = {
           name: key,
           type: 'brand',
           value: theme.data[key],
-          description: this.i18nText ? this.i18nText[key] : ''
+          description: this.i18nText ? this.i18nText[key] : '',
         };
         this.colorList.push(obj);
       } else {
@@ -115,7 +115,7 @@ export class ColorComponent implements OnInit, OnDestroy {
           name: key,
           type: 'others',
           value: theme.data[key],
-          description: this.i18nText ? this.i18nText[key] : ''
+          description: this.i18nText ? this.i18nText[key] : '',
         };
         this.colorList.push(obj);
       }
@@ -141,14 +141,14 @@ export class ColorComponent implements OnInit, OnDestroy {
   setI18n() {
     this.subs.add(
       this.translate.get('components.design-color.colorDemo.instance').subscribe((res) => {
-        this.i18nText = res['colorSource'];
+        this.i18nText = res.colorSource;
       })
     );
 
     this.subs.add(
       this.translate.onLangChange.subscribe((event: TranslationChangeEvent) => {
         const values = this.translate.instant('components.design-color.colorDemo.instance');
-        this.i18nText = values['colorSource'];
+        this.i18nText = values.colorSource;
       })
     );
   }

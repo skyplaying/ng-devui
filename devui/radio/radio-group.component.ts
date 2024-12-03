@@ -22,14 +22,14 @@ import { RadioComponent } from './radio.component';
   templateUrl: './radio-group.component.html',
   styleUrls: ['./radio-group.component.scss', './radio.component.scss'],
   providers: [
-  {
-  provide: NG_VALUE_ACCESSOR,
-  useExisting: forwardRef(() => RadioGroupComponent),
-  multi: true,
-  },
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => RadioGroupComponent),
+      multi: true,
+    },
   ],
   preserveWhitespaces: false,
-  })
+})
 export class RadioGroupComponent implements ControlValueAccessor, OnChanges, AfterViewInit {
   @Input() name: string;
   @Input() values: any[];
@@ -56,17 +56,20 @@ export class RadioGroupComponent implements ControlValueAccessor, OnChanges, Aft
   onRadioChange(event) {
     const target = event.target;
     if (target.tagName.toLowerCase() === 'input') {
-      let value = target.value;
+      event.preventDefault();
       if (this.disabled) {
-        event.preventDefault();
+        return;
       }
+      let value = target.value;
       if (this.radios.length) {
         const result = this.radios.find((item) => item.id === target.id);
         value = result?.value || value;
       }
       this.canChange(value).then((change) => {
-        if (!change) {
-          event.preventDefault();
+        if (change) {
+          this._value = value;
+          this.onChange(value);
+          this.change.emit(value);
         }
       });
     }

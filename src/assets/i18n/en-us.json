@@ -158,6 +158,45 @@
         "change-values": "Change key value"
       }
     },
+    "menu": {
+      "name": "Menu",
+      "type": "Navigation",
+      "path": "menu",
+      "description": "Menu for your websites.",
+      "tmw": "Menu is used when you need to set a menu list navigation.",
+      "basicDemo": {
+        "title": "Basic usage",
+        "description": "Expand、select and disabled"
+      },
+      "openCloseDemo": {
+        "title": "Foldable",
+        "description": "The [collapsed] attribute controls menu expansion and fold, and setting var (--devui menu width) on the menu root element can control the width of expansion and fold"
+      },
+      "openOneDemo": {
+        "title": "Accordion effect",
+        "description": "Control the [open] attribute of d-sub menu to achieve accordion effect"
+      },
+      "LoopDemo": {
+        "title": "Loop menu",
+        "description": "Implementing Recursive Menu by Encapsulating Recursive Components"
+      },
+      "CustomNodeDemo": {
+        "title": "Custom nodes",
+        "description": "Custom node styles, [noStyle] attribute will clear all pre made styles, which means that all styles have to be written by themselves"
+      },
+      "AutoExpandDemo": {
+        "title": "Auto expand selected menu",
+        "description": "Auto expand its parent menu based on the selected item"
+      },
+      "anchorLinkValues": {
+        "basic-usage": "Basic usage",
+        "open-close": "Foldable",
+        "open-one": "Accordion effect",
+        "loop": "Loop menu",
+        "custom-node": "Custom node",
+        "auto-expand": "Auto expand"
+      }
+    },
     "input-group": {
       "name": "input-group",
       "type": "Data entry",
@@ -202,21 +241,19 @@
         "title": "Closable Prompt",
         "description": "The close button is displayed. Click to close the prompt."
       },
-      "directionFadeInDemo": {
-        "title": "Without Icon",
-        "description": "Without default icon."
+      "withoutIconDemo": {
+        "title": "Without the default icon",
+        "description": "Hide the default icon, display only custom content."
       },
-      "slideMenuDemo": {
-        "title": "Without Icon",
-        "description": "Without default icon."
+      "carouselDemo": {
+        "title": "Automatic NVOD",
+        "description": "Loop a series of prompt messages."
       },
-      "ModalDemo": {
-        "title": "Without Icon",
-        "description": "Without default icon."
-      },
-      "fadeInOutDemo": {
-        "title": "Without Icon",
-        "description": "Without default icon."
+      "anchorLinkValues": {
+        "basic-usage": "Basic Usage",
+        "tips-to-close": "Closable Prompt",
+        "without-icon": "Without the default icon",
+        "carousel": "Automatic NVOD"
       }
     },
     "icon": {
@@ -485,10 +522,6 @@
         "title": "checkbox rendering",
         "description": "Support checkbox rendering。"
       },
-      "latexDemo": {
-        "title": "Latex Rendering",
-        "description": "Mathematical Formula Rendering"
-      },
       "tocDemo": {
         "title": "TOC rendering",
         "description": "Generating the TOC directory"
@@ -519,7 +552,6 @@
         "single-render-md": "Render md text separately",
         "mermaid-render": "Mermaid-render",
         "checked-render": "checkbox-render",
-        "latex-render": "Latex-render",
         "toc-render": "TOC-render",
         "uml-render": "UML-render",
         "big-data-process": "Processing a large amount of data"
@@ -914,8 +946,8 @@
       },
       "pipeDemo": {
         "dDatePipe": {
-          "title": "DatePipe"
-        },
+        "title": "DatePipe"
+      },
         "dSafeNullPipe": {
           "title": "SafeNullPipe",
           "description": "When the data is '', null, undefined can be specified any character placeholder display, the default is: '--'"
@@ -937,15 +969,18 @@
       "helperDownloadDemo": {
         "title": "Download File"
       },
+      "shapeIconHoverableDemo": {
+        "title": "shapeIcon Hover Color Change"
+      },
       "anchorLinkValues": {
         "lazy-load": "Lazyload Directive",
-        "safe-null-pipe": "Safe Null Pipe",
         "browser-version": "Current browser name and version",
         "date-pipe": "Datepipe",
         "open-url": "Open URL in A New Tag",
         "download-file": "Download File",
         "iframe-propagate": "iframe Event Propagate API",
-        "clipboard": "Copy to Clipboard Directive"
+        "clipboard": "Copy to Clipboard Directive",
+        "shapeIconHoverable": "shapeIcon Hover Color Change"
       }
     },
     "color-picker": {
@@ -1517,6 +1552,10 @@
         "title": "Table interaction",
         "description": "Supports column sorting, column filtering, customized filtering template, selection, and column width adjustment.\nTwo implementation modes are supported. Method 1 is implemented by customizing the head and body templates and the rows and cells in the templates. Method 2 is implemented by configuring columns."
       },
+      "memoryDemo": {
+        "title": "Table column width memory",
+        "description": "The column width is memorized through the cache. After the refresh, the column width remains unchanged."
+      },
       "lazyDemo": {
         "title": "lazy loading",
         "description": "Use lazy to enable lazy loading. When the bottom of a table is scrolled, the loadMore event is triggered to implement lazy loading."
@@ -1569,6 +1608,7 @@
         "dynamic-cols": "Dynamic Columns And Style",
         "async-loading": "Asynchronous data loading",
         "table-interaction": "Table interaction",
+        "table-memory": "Table column width memory",
         "table-check-options": "Customizing Table Selection",
         "lazy-loading-of-list-data": "Lazy loading",
         "virtual-scroll": "Virtual scrolling",
@@ -2292,10 +2332,15 @@
         "title": "Custom Template",
         "description": "Custom Drawer Template."
       },
+      "resizeDemo": {
+        "title": "Dynamic Width Adjustment",
+        "description": "Dynamically adjustable side slip width"
+      },
       "anchorLinkValues": {
         "basic-usage": "Basic Usage",
         "do-not-destroy-after-closing": "Do not destroy after being closed",
-        "template": "Custom Template"
+        "template": "Custom Template",
+        "resize": "Dynamic Width Adjustment"
       }
     },
     "dropdown": {
@@ -3418,12 +3463,17 @@
         "title": "Service Function",
         "description": "Create a toast global notification using services."
       },
+      "appendDemo": {
+        "title": "Display in appending mode",
+        "description": "Appends new messages within the specified number range instead of clearing the original messages. Note that the duration of existing messages is reset after new messages are inserted."
+      },
       "anchorLinkValues": {
         "basic-usage": "Basic Usage",
         "life": "Timeout interval",
         "style": "Custom Style",
         "toast-service": "Service Function",
-        "single": "Each message uses a separate timeout interval"
+        "single": "Each message uses a separate timeout interval",
+        "append": "Display in appending mode"
       }
     },
     "tooltip": {

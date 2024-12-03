@@ -534,6 +534,7 @@ advancedHeader: Array < {
 |        save         |  `EventEmitter<any>`  |               返回操作改变之后的数据               | [大数据量树形表格基本用法](demo#virtual-scroll-tree-table-basic) |
 |        allChecked         |  `EventEmitter<any>`  |               返回表头复选框状态               | [大数据量树形表格交互](demo#virtual-scroll-tree-table-interaction) |
 |        dropRow         |  `EventEmitter<dataList: any[];dropIndex: number;>`  |               表格行拖拽的投放事件               | [大数据量树形表格拖拽](demo#virtual-scroll-tree-table-multi-drag) |
+|        tableRenderEnd         |  `EventEmitter<void>`  |               表格数据变更后渲染完成的回调事件               | |
 
 原datatable事件都可以透传，支持multiSortChange，cellClick，cellDBClick，rowClick，rowDBClick，cellEditStart，cellEditEnd，resize事件。
 
@@ -576,8 +577,8 @@ advancedHeader: Array < {
 
             <div class="operationIcon icon-copy" title="复制" (click)="copyAndCut(rowItem, 'copy')"></div>
             <div class="operationIcon icon-cut" title="剪切" (click)="copyAndCut(rowItem, 'cut')"></div>
-            <div *ngIf="rowItem.node_type && saveCopyClickNode" class="operationIcon icon-copy-to-new" title="粘贴" (click)="paste(rowItem, 'paste')"></div>
-            <div *ngIf="rowItem.node_id === saveCopyClickNode" class="operationIcon icon-add-manual-use-case" title="粘贴到根" (click)="paste(rowItem, 'toRoot')"></div>
+            <div *ngIf="rowItem.node_type && saveCopyClickNode" class="operationIcon icon-copy-to-new" title="粘贴" (click)="paste(rowItem, 'child')"></div>
+            <div *ngIf="rowItem.node_id === saveCopyClickNode" class="operationIcon icon-add-manual-use-case" title="粘贴到根" (click)="paste(rowItem, 'root')"></div>
         </ng-container>
         <div class="operationIcon icon-delete" title="移除" (click)="delete(rowItem)"></div>
         </span>
@@ -695,8 +696,8 @@ addTreeNodeByRowItem(rowItem: TreeNodeInterface, action: 'addChild' | 'insertBef
 ``` xml
 <div class="operationIcon icon-copy" title="复制" (click)="copyAndCut(rowItem, 'copy')"></div>
 <div class="operationIcon icon-cut" title="剪切" (click)="copyAndCut(rowItem, 'cut')"></div>
-<div *ngIf="rowItem.node_type && saveCopyClickNode" class="operationIcon icon-copy-to-new" title="粘贴" (click)="paste(rowItem, 'paste')"></div>
-<div *ngIf="rowItem.node_id === saveCopyClickNode" class="operationIcon icon-add-manual-use-case" title="粘贴到根" (click)="paste(rowItem, 'toRoot')"></div>
+<div *ngIf="rowItem.node_type && saveCopyClickNode" class="operationIcon icon-copy-to-new" title="粘贴" (click)="paste(rowItem, 'child')"></div>
+<div *ngIf="rowItem.node_id === saveCopyClickNode" class="operationIcon icon-add-manual-use-case" title="粘贴到根" (click)="paste(rowItem, 'root')"></div>
 ```
 
 ``` javascript
@@ -710,7 +711,8 @@ copyAndCut(rowItem, status) {
   this.VirtualTableTree.copyAndCut(rowItem, status);
 }
 
-paste(rowItem, status) {
+// 粘贴三种模式，粘贴到子节点，粘贴到根节点最后，粘贴到兄弟节点
+paste(rowItem, status: 'child' | 'root' | 'next') {
   this.VirtualTableTree.paste(rowItem, status);
   if(this.isCut) {
     this.saveCopyClickNode = "";

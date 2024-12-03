@@ -13,10 +13,10 @@ import {
   SimpleChanges,
   TemplateRef,
   ViewChild,
-  ViewChildren
+  ViewChildren,
 } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ITagMode } from './tag.component';
+import { ITagMode, ITagSize } from './tag.component';
 
 @Component({
   selector: 'd-tags',
@@ -40,10 +40,12 @@ export class TagsComponent implements OnInit, AfterViewInit, OnChanges {
    */
   @Input() deletable = false;
   @Input() mode: ITagMode = 'default';
+  @Input() size: ITagSize = 'md';
   @Input() titleProperty = '';
   @Input() hideBeyondTags = false;
   @Input() beforeDelete: () => boolean | Promise<boolean> | Observable<boolean>;
   @ContentChild(TemplateRef) customViewTemplate: TemplateRef<any>;
+  @ViewChild('suffixElement') suffixElement: ElementRef;
   @ViewChild('tagsElement') tagsElement: ElementRef;
   @ViewChildren('tagElement', { read: ElementRef }) viewChildren!: QueryList<ElementRef>;
   /**
@@ -69,7 +71,7 @@ export class TagsComponent implements OnInit, AfterViewInit, OnChanges {
   ngOnInit() {
     this.maxShowNumber = 0;
     // TODO: 使用cloneDeep导致category-search卡顿，lodash-es报Illegal invocation非法调用错误，需调查原因，暂用循环方式替代深拷贝
-    if(this.hideBeyondTags) {
+    if (this.hideBeyondTags) {
       this.tags.forEach((item) => this.showTags.push(typeof item === 'object' ? { ...item } : item));
     }
   }
@@ -81,7 +83,7 @@ export class TagsComponent implements OnInit, AfterViewInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if(this.hideBeyondTags && changes['tags'] && !changes['tags'].firstChange) {
+    if (this.hideBeyondTags && changes.tags && !changes.tags.firstChange) {
       this.maxShowNumber = 0;
       this.showTags = [...this.tags];
       this.calculateHideTagsStatus();
@@ -90,11 +92,13 @@ export class TagsComponent implements OnInit, AfterViewInit, OnChanges {
 
   calculateHideTagsStatus() {
     this.cdr.detectChanges();
-    this.tagsFatherWidth = this.tagsElement.nativeElement.getBoundingClientRect().width;
     let curWidth = 0;
     const viewChildrenArr = this.viewChildren.toArray();
+    // 通过suffix添加ng-content至tags末尾，判断总宽度时不计算该部分，使得百分比宽度场景tags后可添加内容
+    const suffixWidth = this.suffixElement?.nativeElement.offsetWidth || 0;
+    this.tagsFatherWidth = this.tagsElement.nativeElement.getBoundingClientRect().width - suffixWidth;
 
-    for(let i = 0; i < viewChildrenArr.length; i++) {
+    for (let i = 0; i < viewChildrenArr.length; i++) {
       if (curWidth + viewChildrenArr[i].nativeElement.offsetWidth + this.TAG_MARGIN < this.tagsFatherWidth - this.MORE_TAG_WIDTH) {
         curWidth += viewChildrenArr[i].nativeElement.offsetWidth;
         curWidth += this.TAG_MARGIN;

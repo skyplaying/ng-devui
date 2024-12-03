@@ -12,6 +12,7 @@ export interface I18nInterface {
     btnClose: string;
     btnClickMe: string;
     copied: string;
+    reset: string;
   };
   autoComplete: {
     latestInput: string;
@@ -139,12 +140,10 @@ export interface I18nInterface {
     expand: string;
   };
   relativeTime: {
-    hoursAgo: string;
-    minutesAgo: string;
     justnow: string;
     later: string;
-    minutesLater: string;
-    hoursLater: string;
+    minutesLater(num: number): string;
+    hoursLater(num: number): string;
     yearsAgo(num: number): string;
     monthsAgo(num: number): string;
     weeksAgo(num: number): string;
@@ -153,6 +152,8 @@ export interface I18nInterface {
     weeksLater(num: number): string;
     monthsLater(num: number): string;
     yearsLater(num: number): string;
+    hoursAgo(num: number): string;
+    minutesAgo(num: number): string;
   };
   tagsInput: {
     tagsReachMaxLength: string;

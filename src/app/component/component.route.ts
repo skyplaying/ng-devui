@@ -143,6 +143,18 @@ export const routesConfig: Routes = [
     },
   },
   {
+    path: 'menu',
+    component: ExamplePanelComponent,
+    loadChildren: () => import('../../../devui/menu/demo/menu-demo.moudule').then((m) => m.MenuDemoModule),
+    data: {
+      type: '导航',
+      enType: 'Navigation',
+      name: 'Menu',
+      cnName: '菜单',
+      bannerName: "17",
+    },
+  },
+  {
     path: 'input-group',
     component: ExamplePanelComponent,
     loadChildren: () => import('../../../devui/input-group/demo/input-group-demo.module').then((m) => m.InputGroupDemoModule),
@@ -645,7 +657,7 @@ export const routesConfig: Routes = [
       type: '导航',
       enType: 'Navigation',
       name: 'Tabs',
-      cnName: '选项卡切换',
+      cnName: '页签',
       bannerName: "16",
     },
   },

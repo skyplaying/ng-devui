@@ -11,7 +11,7 @@ import {
   QueryList,
   SimpleChanges,
   TemplateRef,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
 import { sum } from 'lodash-es';
 import { Observable } from 'rxjs';
@@ -44,6 +44,7 @@ export class TabsComponent implements OnChanges, AfterViewInit {
   @Input() closeableIds = [];
   @Input() addable = false;
   @Input() addTabTpl: TemplateRef<any>;
+  @Input() scrollModeOperationTpl: TemplateRef<any>;
   /**
    * @todo
    * 待重新设计
@@ -77,31 +78,30 @@ export class TabsComponent implements OnChanges, AfterViewInit {
 
   ngOnChanges(changes: SimpleChanges): void {
     const { activeTab, scrollMode } = changes;
+    if (scrollMode) {
+      this.getTabsWidth();
+    }
     if (activeTab) {
       this.changeActiveSlidingBlock();
-      if (this.scrollMode && this.tabsEle && this.tabs) {
+      if (this.scrollModeToggle && this.tabsEle && this.tabs) {
         const tabs = this.tabsEle.nativeElement.querySelectorAll('li.devui-nav-tab-item');
         const index = Array.from(this.tabs).findIndex((item) => item.id === this.activeTab);
         this.offsetIndex = index;
         this.scrollIntoView(tabs[index]);
       }
     }
-    if (scrollMode) {
-      this.getTabsWidth();
-    }
   }
 
   ngAfterViewInit(): void {
     if (this.tabs.length) {
       if (this.activeTab === undefined) {
-        // 无选中选项卡则默认选择第一个未被禁用的选项卡
+        // 无选中页签则默认选择第一个未被禁用的页签
         const { id } = this.tabs.find((item) => !item.disabled);
         this.select(id);
       } else {
         this.changeActiveSlidingBlock();
       }
     }
-
     this.getTabsWidth();
     this.tabs.changes.subscribe(() => {
       this.changeActiveSlidingBlock();
@@ -166,7 +166,7 @@ export class TabsComponent implements OnChanges, AfterViewInit {
 
   addOrDeleteTab(event: Event, id?: number | string): void {
     event.stopPropagation();
-    const operation = id || id >= 0 ? 'delete' : 'add';
+    const operation = id || id === 0 ? 'delete' : 'add';
     this.addOrDeleteTabChange.emit({ id, operation });
   }
 
@@ -211,7 +211,9 @@ export class TabsComponent implements OnChanges, AfterViewInit {
         for (let i = 0; i < this.tabsWidth.length; i++) {
           width += this.tabsWidth[i];
           if (width >= distance) {
-            this.offsetIndex = i === 0 ? 0 : direction === 'next' ? (containerWidth - width < viewportWidth ? tabs.length - 1 : i) : i + 1;
+            const lastIndex = containerWidth - width < viewportWidth ? tabs.length - 1 : i;
+            const nexIndex = direction === 'next' ? lastIndex : i + 1;
+            this.offsetIndex = i === 0 ? 0 : nexIndex;
             break;
           }
         }
@@ -219,7 +221,8 @@ export class TabsComponent implements OnChanges, AfterViewInit {
       } else if (index >= 0 && tab) {
         const toIndexArr = this.tabsWidth.slice(0, index);
         const width = sum(toIndexArr);
-        const fixIndex = index === 0 ? 0 : containerWidth - width < viewportWidth ? tabs.length - 1 : index;
+        const lastIndex = containerWidth - width < viewportWidth ? tabs.length - 1 : index;
+        const fixIndex = index === 0 ? 0 : lastIndex;
         const dom = tabs[fixIndex];
         this.offsetIndex = fixIndex;
         if (isInitScrollMode) {

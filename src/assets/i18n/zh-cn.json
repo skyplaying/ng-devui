@@ -158,6 +158,45 @@
         "change-values": "改变键值"
       }
     },
+    "menu": {
+      "name": "Menu 菜单",
+      "type": "导航",
+      "path": "menu",
+      "description": "为页面菜单的组件。",
+      "tmw": "需要通过分组组织菜单的时候使用。",
+      "basicDemo": {
+        "title": "基本用法",
+        "description": "展开、选中和禁用"
+      },
+      "openCloseDemo": {
+        "title": "可折叠",
+        "description": "[collapsed] 属性控制菜单展开和折叠, 在菜单根元素上设置var(--devui-menu-width)可控制展开和折叠的宽度"
+      },
+      "openOneDemo": {
+        "title": "手风琴效果",
+        "description": "控制d-sub-menu的[open]属性实现手风琴效果"
+      },
+      "LoopDemo": {
+        "title": "递归菜单",
+        "description": "通过封装递归组件实现递归菜单"
+      },
+      "CustomNodeDemo": {
+        "title": "自定义节点",
+        "description": "自定义节点样式，[noStyle]属性会清掉所有预制样式，这意味着得所有样式都得自己写"
+      },
+      "AutoExpandDemo": {
+        "title": "自动展开选中菜单",
+        "description": "根据选中项自动展开其父级菜单"
+      },
+      "anchorLinkValues": {
+        "basic-usage": "基本用法",
+        "open-close": "可折叠",
+        "open-one": "手风琴效果",
+        "loop": "递归菜单",
+        "custom-node": "自定义节点",
+        "auto-expand": "自动展开选中项"
+      }
+    },
     "input-group": {
       "name": "输入框组合",
       "type": "数据录入",
@@ -206,10 +245,15 @@
         "title": "不使用默认图标",
         "description": "不使用默认的类型图标。"
       },
+      "carouselDemo": {
+        "title": "自动轮播",
+        "description": "循环播放一系列文字提示信息。"
+      },
       "anchorLinkValues": {
         "basic-usage": "基本用法",
         "tips-to-close": "可关闭的提示",
-        "without-icon": "不使用默认图标"
+        "without-icon": "不使用默认图标",
+        "carousel": "自动轮播"
       }
     },
     "animations": {
@@ -550,10 +594,6 @@
         "title": "checkbox 渲染",
         "description": "支持checkbox渲染。"
       },
-      "latexDemo": {
-        "title": "数学公式渲染",
-        "description": "支持Latex格式渲染"
-      },
       "tocDemo": {
         "title": "TOC 渲染",
         "description": "支持生成TOC目录"
@@ -584,7 +624,6 @@
         "single-render-md": "单独渲染md文本",
         "mermaid-render": "Mermaid渲染",
         "checked-render": "checkbox渲染",
-        "latex-render": "数学公式渲染",
         "toc-render": "TOC渲染",
         "uml-render": "UML渲染",
         "big-data-process": "大数据量场景处理"
@@ -1159,8 +1198,8 @@
       },
       "pipeDemo": {
         "dDatePipe": {
-          "title": "日期解析器"
-        },
+        "title": "日期解析器"
+      },
         "dSafeNullPipe": {
           "title": "空值占位管道",
           "description": "当数据为 ''、null、undefined时可指定任意字符进行占位展示，默认为：'--'"
@@ -1182,15 +1221,18 @@
       "helperDownloadDemo": {
         "title": "下载文件"
       },
+      "shapeIconHoverableDemo": {
+        "title": "shapeIcon 悬停变色"
+      },
       "anchorLinkValues": {
         "lazy-load": "懒加载指令",
-        "safe-null-pipe": "空值占位管道",
         "browser-version": "当前浏览器名和版本",
         "date-pipe": "日期解析器",
         "open-url": "新标签页打开网页",
         "download-file": "文件下载",
         "iframe-propagate": "iframe 冒泡事件",
-        "clipboard": "复制到剪贴板指令"
+        "clipboard": "复制到剪贴板指令",
+        "shapeIconHoverable": "shapeIcon 悬停变色"
       }
     },
     "color-picker": {
@@ -1753,6 +1795,10 @@
         "title": "表格交互",
         "description": "支持列排序、列过滤、自定义过滤模板、选中、调整列宽\n支持两种实现方式，方式一通过自定义head、body模板和其中的行、单元格实现，方式二通过配置column来实现。"
       },
+      "memoryDemo": {
+        "title": "表格列宽记忆",
+        "description": "通过缓存来记忆列宽, 刷新后列宽不变。"
+      },
       "lazyDemo": {
         "title": "懒加载",
         "description": "使用lazy启用懒加载，当滚动表格底部时到触发loadMore事件实现懒加载。"
@@ -1805,6 +1851,7 @@
         "dynamic-cols": "动态列及样式配置器",
         "async-loading": "异步加载数据",
         "table-interaction": "表格交互",
+        "table-memory": "表格列宽记忆",
         "table-check-options": "自定义表格选中操作",
         "lazy-loading-of-list-data": "懒加载",
         "virtual-scroll": "虚拟滚动",
@@ -2215,7 +2262,7 @@
       },
       "validateReactiveDemo": {
         "title": "响应式表单验证",
-        "description": "模板中绑定<code>formGroup、formControlName、formControl</code>，使用<code>dValidateRules</code>配置校验规则。<p>推荐阅读<a href=\"https://angular.cn/guide/reactive-forms\" target=\"_blank\">【Angular响应式表单】</a></p>"
+        "description": "模板中绑定<code>formGroup、formControlName、formControl</code>，使用<code>dValidateRules</code>配置校验规则。<p>推荐阅读<a class='devui-link' href=\"https://angular.cn/guide/reactive-forms\" target=\"_blank\">【Angular响应式表单】</a></p>"
       },
       "customStatusDemo": {
         "title": "指定表单Feedback状态",
@@ -2528,10 +2575,15 @@
         "title": "自定义模板",
         "description": "自定义抽屉板模板。"
       },
+      "resizeDemo": {
+        "title": "动态调整宽度",
+        "description": "侧滑宽度动态可调整"
+      },
       "anchorLinkValues": {
         "basic-usage": "基本用法",
         "do-not-destroy-after-closing": "关闭后不销毁",
-        "template": "自定义模板"
+        "template": "自定义模板",
+        "resize": "动态调整宽度"
       }
     },
     "dropdown": {
@@ -3571,17 +3623,17 @@
       }
     },
     "tabs": {
-      "name": "Tabs 选项卡切换",
+      "name": "Tabs 页签",
       "type": "导航",
       "path": "tabs",
-      "description": "选项卡切换组件。",
+      "description": "页签组件。",
       "tmw": "用户需要通过平级的区域将大块内容进行收纳和展现，保持界面整洁。",
       "basicDemo": {
         "title": "基本用法",
         "description": ""
       },
       "withoutContentDemo": {
-        "title": "禁用选项卡",
+        "title": "禁用页签",
         "description": "",
         "activeID:": "activeID:"
       },
@@ -3606,16 +3658,16 @@
         "description": ""
       },
       "sizeDemo": {
-        "title": "选项卡尺寸",
-        "description": "选项卡有4种大小，可以根据业务场景选择合适大小的尺寸。"
+        "title": "页签尺寸",
+        "description": "页签有4种大小，可以根据业务场景选择合适大小的尺寸。"
       },
       "beforeChangeDemo": {
         "title": "拦截tab切换",
-        "description": "使用beforeChange拦截选项卡切换。"
+        "description": "使用beforeChange拦截页签切换。"
       },
       "addDeleteDemo": {
         "title": "添加 / 删除",
-        "description": "添加和删除选项卡。"
+        "description": "添加和删除页签。"
       },
       "bigDataDemo": {
         "title": "大数据展示",
@@ -3627,13 +3679,13 @@
       },
       "anchorLinkValues": {
         "basic-usage": "基本用法",
-        "no-set-content": "禁用选项卡",
+        "no-set-content": "禁用页签",
         "custom-template": "自定义模板",
         "type-pills": "Pills类型",
         "type-options": "Options类型",
         "type-slider": "Slider类型",
         "type-wrapped": "Wrapped类型",
-        "size": "选项卡尺寸",
+        "size": "页签尺寸",
         "intercept-tab-switch": "拦截tab切换",
         "add-delete": "添加 / 删除",
         "big-data": "大数据展示",
@@ -3760,6 +3812,10 @@
         "title": "每个消息使用单独的超时时间",
         "description": "当设置超时时间模式为single时，每个消息使用自身的life作为超时时间，如果未设置则按severity判断，severity也未设置时默认超时时间为5000毫秒。"
       },
+      "appendDemo": {
+        "title": "追加显示",
+        "description": "在指定数量范围内追加显示新消息，而不是清空原有消息，需注意新消息插入后会重置已有消息的持续时间"
+      },
       "serviceDemo": {
         "title": "服务方式调用",
         "description": "使用服务的方式创建toast全局通知。"
@@ -3769,7 +3825,8 @@
         "life": "超时时间",
         "style": "自定义样式",
         "toast-service": "服务方式调用",
-        "single": "每个消息使用单独的超时时间"
+        "single": "每个消息使用单独的超时时间",
+        "append": "追加显示"
       }
     },
     "tooltip": {

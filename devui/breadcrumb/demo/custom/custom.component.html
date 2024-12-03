@@ -10,17 +10,17 @@
 <ng-template #menuTpl>
   <ul class="breadcrumb-dropdown-menu">
     <li>
-      <span class="icon-arrow-right"></span>
+      <span class="icon-arrow-right-o"></span>
       <a href="/components/zh-cn/anchor/demo">Anchor</a>
     </li>
     <li>
-      <span class="icon-arrow-right"></span>
+      <span class="icon-arrow-right-o"></span>
       <a href="/components/zh-cn/button/demo">Button</a>
     </li>
   </ul>
 </ng-template>
 <ng-template #separatorIcon>
-  <span class="icon-arrow-right"></span>
+  <span class="icon-arrow-right-o"></span>
 </ng-template>
 
 <h4>Use Custom Dropdown Behavior</h4>
@@ -31,7 +31,7 @@
         <span>{{ item.label }}</span>
         <i
           *ngIf="item.showMenu"
-          class="icon icon-select-arrow devui-icon-rotate"
+          class="icon icon-chevron-down-2 devui-icon-rotate"
           [style.transform]="dropdownInstance?.isOpen ? 'rotate(180deg)' : 'rotate(0deg)'"
         ></i>
       </a>

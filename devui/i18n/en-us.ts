@@ -24,6 +24,7 @@ export default {
     btnOk: 'OK',
     btnCancel: 'Cancel',
     btnClose: 'Close',
+    reset: 'Reset',
     btnClickMe: 'click me!',
     copied: 'Copied',
   },
@@ -54,8 +55,8 @@ export default {
       'Mar',
       'Apr',
       'May',
-      'June',
-      'July',
+      'Jun',
+      'Jul',
       'Aug',
       'Sep',
       'Oct',
@@ -124,24 +125,24 @@ export default {
     },
   },
   gantt: {
-    today: 'today',
+    today: 'Today',
     day: 'Day',
     week: 'Week',
     month: 'Month',
     milestone: 'milestone',
     monthsOfYear: [
-      'January',
-      'February',
-      'March',
-      'April',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
       'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sept',
+      'Oct',
+      'Nov',
+      'Dec',
     ],
     yearDisplay(year) {
       return `${year}`;
@@ -150,7 +151,7 @@ export default {
       return this.monthsOfYear[Number(strMonthIndex) - 1];
     },
     yearAndMonthDisplay(year: string, strMonthIndex: string) {
-      return this.yearDisplay(year) + this.monthDisplay(strMonthIndex);
+      return this.monthDisplay(strMonthIndex) + ' ' + this.yearDisplay(year);
     },
   },
   pagination: {
@@ -267,12 +268,20 @@ export default {
     yearsLater(num: number) {
       return num === 1 ? 'next year' : `${num} years later`;
     },
-    hoursAgo: ' hours ago',
-    minutesAgo: ' minutes ago',
+    hoursAgo(num: number) {
+      return num === 1 ? `1 hour ago` : `${num} hours ago`;
+    },
+    minutesAgo(num: number) {
+      return num === 1 ? `1 minute ago` : `${num} minutes ago`;
+    },
+    minutesLater(num: number) {
+      return num === 1 ? `1 minute later` : `${num} minutes later`;
+    },
+    hoursLater(num: number) {
+      return num === 1 ? `1 hours later` : `${num} hours later`;
+    },
     justnow: 'just now',
     later: 'later',
-    minutesLater: ' minutes later',
-    hoursLater: ' hours later',
   },
   tagsInput: {
     tagsReachMaxLength: 'The length of tags has reached maxTags',

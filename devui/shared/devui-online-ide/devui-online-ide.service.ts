@@ -13,6 +13,7 @@ import environmentTS from './files/environment';
 import mainTS from './files/main';
 import polyfillTS from './files/polyfill';
 import tsconfigJSON from './files/tsconfig.json';
+import { LinkMap } from '../../../devui-commons/src/constant';
 
 const regConfig = {
   environmentUrl: /(?<=\'|\")src\/environments\/environment(?=\'|\")/,
@@ -26,25 +27,25 @@ const regConfig = {
 
 @Injectable({
   providedIn: 'root',
-  })
+})
 export class DevuiOnlineIdeService {
   document: Document;
   dependencies = {
-    '@angular/animations': '^16.0.0',
-    '@angular/cdk': '^16.0.0',
-    '@angular/common': '^16.0.0',
-    '@angular/compiler': '^16.0.0',
-    '@angular/core': '^16.0.0',
-    '@angular/forms': '^16.0.0',
-    '@angular/platform-browser': '^16.0.0',
-    '@angular/platform-browser-dynamic': '^16.0.0',
-    '@angular/router': '^16.0.0',
-    "@ngx-translate/core": "^14.0.0",
+    '@angular/animations': '^18.0.0',
+    '@angular/cdk': '^18.0.0',
+    '@angular/common': '^18.0.0',
+    '@angular/compiler': '^18.0.0',
+    '@angular/core': '^18.0.0',
+    '@angular/forms': '^18.0.0',
+    '@angular/platform-browser': '^18.0.0',
+    '@angular/platform-browser-dynamic': '^18.0.0',
+    '@angular/router': '^18.0.0',
+    "@ngx-translate/core": "^15.0.0",
     "lodash-es": "^4.17.15",
     '@devui-design/icons': '^1.2.0',
     'core-js': '^3.18.3',
     'date-fns': '^2.23.0',
-    'ng-devui': `^16.0.0`,
+    'ng-devui': `^18.0.0`,
     rxjs: '~7.5.5',
     tslib: '^2.0.0',
     'zone.js': '~0.11.4',
@@ -73,7 +74,7 @@ export class DevuiOnlineIdeService {
     const form = this.document.createElement('form');
     const parametersInput = this.document.createElement('input');
     form.method = 'POST';
-    form.action = 'https://codesandbox.io/api/v1/sandboxes/define?module=/src/app/app.component.ts';
+    form.action = LinkMap.codesandbox;
     form.target = '_blank';
     parametersInput.name = 'parameters';
     parametersInput.value = parameters;

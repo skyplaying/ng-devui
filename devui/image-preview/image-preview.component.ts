@@ -1,8 +1,22 @@
 import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, Inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { I18nInterface, I18nService } from 'ng-devui/i18n';
+import { merge } from 'lodash-es';
 import { Subscription } from 'rxjs';
 import { TransformableElement } from './transformable-element';
+
+export interface IImagePreviewToolbar {
+  zoomIn?: boolean;
+  zoomOut?: boolean;
+  rotate?: boolean;
+  prev?: boolean;
+  next?: boolean;
+  index?: boolean;
+  scaleBest?: boolean;
+  scaleOriginal?: boolean;
+  originnalImage?: boolean;
+  download?: boolean;
+}
 
 @Component({
   selector: 'd-image-preview',
@@ -12,38 +26,51 @@ import { TransformableElement } from './transformable-element';
   preserveWhitespaces: false,
 })
 export class DImagePreviewComponent implements OnInit, OnDestroy {
-  _data: any;
-  @Input()
-  set data(data) {
+  @Input() set data(data) {
     this._data = data;
     this.images = data.images;
     this.onClose = data.onClose;
     this.targetImageIndex = this.images.indexOf(data.targetImage);
     this.totalImageNum = this.images.length;
+    merge(this.toolbar, data.toolbar || {});
   }
+
   get data() {
     return this._data;
   }
-
-  transformableImageElementRef: TransformableElement;
-  images: HTMLElement[];
-  isOptimal = true;
-  targetImageIndex: number;
-  totalImageNum: number;
-
-  showInput = false;
-
-  onClose: () => void;
-
-  i18nText: I18nInterface['imagePreview'];
-  i18nSubscription: Subscription;
-  document: Document;
 
   get targetImageSrc(): string {
     // 防止targetImageIndex出现-1的情况
     const idx = (this.targetImageIndex >= 0 && this.targetImageIndex) || 0;
     return this.images[idx].getAttribute('src');
   }
+
+  toolbar: IImagePreviewToolbar = {
+    zoomIn: true,
+    zoomOut: true,
+    rotate: true,
+    prev: true,
+    next: true,
+    index: true,
+    scaleBest: true,
+    scaleOriginal: true,
+    originnalImage: true,
+    download: true,
+  };
+  transformableImageElementRef: TransformableElement;
+  images: HTMLElement[];
+  isOptimal = true;
+  targetImageIndex: number;
+  totalImageNum: number;
+  disabledZoomIn = false;
+  disabledZoomOut = false;
+  showInput = false;
+  i18nText: I18nInterface['imagePreview'];
+  i18nSubscription: Subscription;
+  document: Document;
+  onClose: () => void;
+
+  _data: any;
 
   constructor(private elementRef: ElementRef, private i18n: I18nService, @Inject(DOCUMENT) private doc: any) {
     this.document = this.doc;
@@ -58,15 +85,15 @@ export class DImagePreviewComponent implements OnInit, OnDestroy {
 
   @HostListener('touchstart', ['$event'])
   touchstart($event) {
-    $event['clientX'] = $event.changedTouches[0].clientX;
-    $event['clientY'] = $event.changedTouches[0].clientY;
+    $event.clientX = $event.changedTouches[0].clientX;
+    $event.clientY = $event.changedTouches[0].clientY;
     this.transformableImageElementRef.mouseDown($event);
   }
 
   @HostListener('touchmove', ['$event'])
   touchmove($event) {
-    $event['clientX'] = $event.changedTouches[0].clientX;
-    $event['clientY'] = $event.changedTouches[0].clientY;
+    $event.clientX = $event.changedTouches[0].clientX;
+    $event.clientY = $event.changedTouches[0].clientY;
     this.transformableImageElementRef.mouseMove($event);
   }
 
@@ -115,11 +142,13 @@ export class DImagePreviewComponent implements OnInit, OnDestroy {
   }
 
   zoomIn() {
-    this.transformableImageElementRef.zoomIn();
+    this.disabledZoomOut = false;
+    this.disabledZoomIn = this.transformableImageElementRef.zoomIn();
   }
 
   zoomOut() {
-    this.transformableImageElementRef.zoomOut();
+    this.disabledZoomIn = false;
+    this.disabledZoomOut = this.transformableImageElementRef.zoomOut();
   }
 
   rotate() {

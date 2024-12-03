@@ -5,7 +5,7 @@ import {
   ConnectedPosition,
   ScrollStrategy,
   ScrollStrategyOptions,
-  VerticalConnectionPos
+  VerticalConnectionPos,
 } from '@angular/cdk/overlay';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 import { DOCUMENT } from '@angular/common';
@@ -17,7 +17,6 @@ import {
   ContentChild,
   ElementRef,
   EventEmitter,
-  forwardRef,
   HostBinding,
   HostListener,
   Inject,
@@ -30,24 +29,25 @@ import {
   Renderer2,
   SimpleChanges,
   TemplateRef,
-  ViewChild
+  ViewChild,
+  forwardRef,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { I18nInterface, I18nService } from 'ng-devui/i18n';
 import {
-  addClassToOrigin,
   AppendToBodyDirection,
   AppendToBodyDirectionsConfig,
   AppendToBodyScrollStrategyType,
   DevConfigService,
+  WithConfig,
+  addClassToOrigin,
   fadeInOut,
   formWithDropDown,
   removeClassFromOrigin,
-  WithConfig
 } from 'ng-devui/utils';
 import { WindowRef } from 'ng-devui/window-ref';
 import { differenceBy, isEqual } from 'lodash-es';
-import { BehaviorSubject, fromEvent, Observable, of, Subscription } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, fromEvent, of } from 'rxjs';
 import { debounceTime, filter, map, switchMap } from 'rxjs/operators';
 
 @Component({
@@ -57,15 +57,15 @@ import { debounceTime, filter, map, switchMap } from 'rxjs/operators';
   exportAs: 'select',
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
-  {
-  provide: NG_VALUE_ACCESSOR,
-  useExisting: forwardRef(() => SelectComponent),
-  multi: true,
-  },
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => SelectComponent),
+      multi: true,
+    },
   ],
   animations: [fadeInOut],
   preserveWhitespaces: false,
-  })
+})
 export class SelectComponent implements ControlValueAccessor, OnInit, AfterViewInit, OnDestroy, OnChanges {
   /**
    * 【必选】下拉选项资源，支持Array<string>, Array<{key: value}>
@@ -119,7 +119,7 @@ export class SelectComponent implements ControlValueAccessor, OnInit, AfterViewI
    * 【可选】cdk模式overlay Positions的控制
    */
   @Input() appendToBodyDirections: Array<AppendToBodyDirection | ConnectedPosition> = ['rightDown', 'leftDown', 'rightUp', 'leftUp'];
-  @Input() appendToBodyScrollStrategy: AppendToBodyScrollStrategyType;
+  @Input() @WithConfig() appendToBodyScrollStrategy: AppendToBodyScrollStrategyType;
   /**
    * 【可选】cdk模式origin width
    */
@@ -188,6 +188,7 @@ export class SelectComponent implements ControlValueAccessor, OnInit, AfterViewI
        */
       containnerMaxHeight?: string; // 默认值1.8em
       labelMaxWidth?: string; // 默认100%
+      maxTags?: number; // 可点选最大标签数，超出则省略显示
     };
     selectedItemWithTemplate?: {
       // 单选情况下，显示选项使用了template的情况下，顶部选中的内容是否也以template展示
@@ -280,7 +281,16 @@ export class SelectComponent implements ControlValueAccessor, OnInit, AfterViewI
   }
 
   get isClearIconShow() {
-    return this.allowClear && !this.multiple && !this.disabled && this.value;
+    const hasValue = this.multiple ? this.multiItems?.length : this.value;
+    return this.allowClear && !this.disabled && hasValue;
+  }
+
+  get showMoreTags() {
+    return this.multiItems.length > (this.extraConfig?.labelization?.maxTags || 40) && this.isSelectAll && this.virtualScroll;
+  }
+
+  get moreTagsNum() {
+    return `+${this.multiItems.length - 1}`;
   }
 
   _inputValue: any;
@@ -290,6 +300,7 @@ export class SelectComponent implements ControlValueAccessor, OnInit, AfterViewI
   isMouseEvent = false;
   showLoading = false;
   startAnimation = false;
+  limitMaxHeight = false;
   availableOptions = [];
   multiItems = [];
   value: any;
@@ -316,6 +327,8 @@ export class SelectComponent implements ControlValueAccessor, OnInit, AfterViewI
     lg: 50,
     space: 4,
   };
+  // 容器边距，虚拟滚动设置高度需考虑上下边距
+  CONTAINER_MARGINS = 12;
   ANIMATION_DELAY = 300;
 
   get showSelectAll() {
@@ -335,6 +348,7 @@ export class SelectComponent implements ControlValueAccessor, OnInit, AfterViewI
     private changeDetectorRef: ChangeDetectorRef,
     private i18n: I18nService,
     private ngZone: NgZone,
+    private el: ElementRef,
     private devConfigService: DevConfigService,
     private scrollStrategyOption: ScrollStrategyOptions
   ) {
@@ -372,6 +386,10 @@ export class SelectComponent implements ControlValueAccessor, OnInit, AfterViewI
         });
       });
     }
+    // 当d-select添加limit-max-height样式类时为devui-dropdown-menu-wrap容器添加最大高度限制样式，避免当窗口高度小于指定下拉最大高度时，下拉内容超出cdk容器
+    if (this.el.nativeElement?.className.includes('limit-max-height')) {
+      this.limitMaxHeight = true;
+    }
   }
 
   ngOnDestroy(): void {
@@ -389,6 +407,7 @@ export class SelectComponent implements ControlValueAccessor, OnInit, AfterViewI
 
   ngOnChanges(changes: SimpleChanges): void {
     const { searchFn, options, appendToBodyDirections, appendToBodyScrollStrategy, disabled } = changes;
+    const globalScrollStrategy = this.devConfigService.getConfigForApi('appendToBodyScrollStrategy');
     if (searchFn || options) {
       this.resetSource();
       if (this.virtualScroll && this.virtualScrollViewport) {
@@ -399,7 +418,7 @@ export class SelectComponent implements ControlValueAccessor, OnInit, AfterViewI
     if (appendToBodyDirections) {
       this.setPositions();
     }
-    if (appendToBodyScrollStrategy && this.appendToBodyScrollStrategy) {
+    if (this.appendToBodyScrollStrategy && (appendToBodyScrollStrategy || globalScrollStrategy)) {
       const func = this.scrollStrategyOption[this.appendToBodyScrollStrategy];
       this.scrollStrategy = func();
     }
@@ -440,7 +459,7 @@ export class SelectComponent implements ControlValueAccessor, OnInit, AfterViewI
       }
       const scrollHeight = parseInt(this.scrollHight, 10);
       this.scrollHeightNum = height > scrollHeight ? scrollHeight : height;
-      return `${this.scrollHeightNum}px`;
+      return `${this.scrollHeightNum + this.CONTAINER_MARGINS * 2}px`;
     }
   }
 
@@ -521,8 +540,13 @@ export class SelectComponent implements ControlValueAccessor, OnInit, AfterViewI
   writeValue(value: any): void {
     if (this.multiple) {
       this.value = value ?? [];
-      this.getMultipleSelectedOption();
-      this.setAllChecked();
+      if (this.showMoreTags) {
+        this.value = this.value || [];
+        this.value = Array.isArray(this.value) ? this.value : [this.value];
+      } else {
+        this.getMultipleSelectedOption();
+        this.setAllChecked();
+      }
     } else {
       this.value = value ?? '';
       this.getSingleSelectedOption();
@@ -542,10 +566,15 @@ export class SelectComponent implements ControlValueAccessor, OnInit, AfterViewI
     }
     this._inputValue = this.multiple ? (valueItem || []).map((option) => this.valueParser(option)).join(', ') : this.valueParser(valueItem);
     this.setAvailableOptions();
+    if (this.showMoreTags) {
+      this.multiItems = this.availableOptions.filter((item) => item.isChecked);
+      this.setAllChecked();
+    }
   }
 
   setAvailableOptions() {
-    if (!this.value || !Array.isArray(this.availableOptions)) {
+    const hasNoValue = this.value === undefined || this.value === '';
+    if (hasNoValue || !Array.isArray(this.availableOptions)) {
       return;
     }
     let _value = this.value;
@@ -572,7 +601,7 @@ export class SelectComponent implements ControlValueAccessor, OnInit, AfterViewI
       ? this.getOption(this.availableOptions, this.value)
       : this.availableOptions.find((item) => this.formatter(item.option) === this.formatter(this.value));
     this.activeIndex = selectedItem ? selectedItem.id : -1;
-    this.selectIndex = this.activeIndex ? this.activeIndex : -1;
+    this.selectIndex = this.activeIndex >= 0 ? this.activeIndex : -1;
   }
 
   getOption(data, value, hasOption?) {
@@ -767,7 +796,7 @@ export class SelectComponent implements ControlValueAccessor, OnInit, AfterViewI
   isBottomRectEnough() {
     const selectMenuElement = this.selectMenuElement.nativeElement;
     const selectInputElement = this.selectInputElement || this.selectInputWithLabelElement || this.selectInputWithTemplateElement;
-    const displayStyle = selectMenuElement.style['display'] || (<any>window).getComputedStyle(selectMenuElement).display;
+    const displayStyle = selectMenuElement.style.display || (<any>window).getComputedStyle(selectMenuElement).display;
     let tempStyle;
     if (displayStyle === 'none') {
       // 必要， 否则首次展开必有问题， 如果animationEnd之后设置为none也会有问题
@@ -968,14 +997,20 @@ export class SelectComponent implements ControlValueAccessor, OnInit, AfterViewI
 
   valueClear($event) {
     $event.stopPropagation();
-    this.value = null;
+    if (this.multiple) {
+      this.multiItems = [];
+      this.value = [];
+      this.setAllChecked();
+    } else {
+      this.value = undefined;
+    }
     this.resetStatus();
     this.onChange(this.value);
     this.valueChange.emit(this.value);
   }
 
   resetStatus() {
-    this.writeIntoInput('');
+    this.writeIntoInput(this.value);
     if (this.availableOptions && this.availableOptions[this.activeIndex]) {
       this.availableOptions[this.activeIndex].isChecked = false;
     }

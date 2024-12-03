@@ -14,7 +14,7 @@ import {
   Self,
   SimpleChanges,
   SkipSelf,
-  TemplateRef
+  TemplateRef,
 } from '@angular/core';
 import {
   AbstractControl,
@@ -23,24 +23,24 @@ import {
   ControlContainer,
   NgControl,
   ValidationErrors,
-  ValidatorFn
+  ValidatorFn,
 } from '@angular/forms';
 import { I18nInterface, I18nService } from 'ng-devui/i18n';
 import { OverlayContainerRef } from 'ng-devui/overlay-container';
 import { PopoverComponent } from 'ng-devui/popover';
-import { fromEvent, merge, Observable, Subject, timer } from 'rxjs';
+import { Observable, Subject, fromEvent, merge, timer } from 'rxjs';
 import { map, switchMap, takeUntil } from 'rxjs/operators';
 import { FormItemComponent } from '../form-item.component';
 import {
   DAsyncValidateRule,
-  dDefaultValidators,
   DFormControlStatus,
   DPopConfig,
   DValidateErrorStatus,
   DValidateRule,
   DValidateRules,
   DValidationErrorStrategy,
-  ruleReservedWords
+  dDefaultValidators,
+  ruleReservedWords,
 } from './validate.type';
 
 @Directive()
@@ -137,7 +137,7 @@ export abstract class DAbstractControlRuleDirective implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if ('rules' in changes && !this._rules) {
       // TODO：提供外部调用可手动更新rule方法
-      this._rules = { ...this._originRules, ...this._translateRulesToObject(changes['rules'].currentValue) };
+      this._rules = { ...this._originRules, ...this._translateRulesToObject(changes.rules.currentValue) };
       this.setupOrUpdateRules();
     }
 
@@ -325,9 +325,9 @@ export abstract class DAbstractControlRuleDirective implements OnChanges {
 
   get dClassSuccess() {
     // COMMENT: 暂不默认提供
-    if (this._rules['errorStrategy'] === 'dirty') {
+    if ((this._rules as any).errorStrategy === 'dirty') {
       return this._cd.control ? this._cd.control.valid && this._cd.control.dirty : false;
-    } else if (!this._rules['errorStrategy']) {
+    } else if (!(this._rules as any).errorStrategy) {
       return false;
     } else {
       return this._cd.control ? this._cd.control.valid : false;
@@ -380,13 +380,13 @@ export abstract class DAbstractControlRuleDirective implements OnChanges {
   }
 
   private _getErrorStrategy(rule?) {
-    return (rule && rule.errorStrategy) || this._rules['errorStrategy'] || 'dirty';
+    return (rule && rule.errorStrategy) || (this._rules as any).errorStrategy || 'dirty';
   }
 
   private _getMessageFormErrorsById(errors: { [key: string]: any }, id: string): string | null {
     if (errors[id] && typeof errors[id] === 'string') {
       return errors[id];
-    } else if (errors[id] && typeof errors[id] === 'object' && (errors[id][this.locale] || errors[id]['default'])) {
+    } else if (errors[id] && typeof errors[id] === 'object' && (errors[id][this.locale] || errors[id].default)) {
       return errors[id];
     } else {
       return null;
@@ -459,7 +459,7 @@ const dControlErrorStatusHost = {
   /* eslint-disable-next-line @angular-eslint/no-host-metadata-property*/
   host: dControlErrorStatusHost,
   exportAs: 'dValidateRules',
-  })
+})
 export class DFormGroupRuleDirective extends DAbstractControlRuleDirective implements OnInit, OnChanges, OnDestroy {
   @Input('dValidateRules') rules: DValidateRules;
   @Output() dRulesStatusChange: EventEmitter<any> = new EventEmitter<any>();
@@ -504,7 +504,7 @@ export class DFormGroupRuleDirective extends DAbstractControlRuleDirective imple
   /* eslint-disable-next-line @angular-eslint/no-host-metadata-property*/
   host: dControlErrorStatusHost,
   exportAs: 'dValidateRules',
-  })
+})
 export class DFormControlRuleDirective extends DAbstractControlRuleDirective implements OnInit, OnChanges, OnDestroy {
   @Input('dValidateRules') rules: DValidateRules;
   @Output() dRulesStatusChange: EventEmitter<any> = new EventEmitter<any>();
@@ -525,13 +525,13 @@ export class DFormControlRuleDirective extends DAbstractControlRuleDirective imp
   }
 
   constructor(
-    @Self() cd: NgControl,
-    @Optional() @Host() private dFormItem: FormItemComponent,
-    @Optional() @Host() @SkipSelf() parentDir: DFormGroupRuleDirective,
-    private i18n: I18nService,
-    public triggerElementRef: ElementRef,
-    private overlayContainerRef: OverlayContainerRef,
-    private componentFactoryResolver: ComponentFactoryResolver
+  @Self() cd: NgControl,
+          @Optional() @Host() private dFormItem: FormItemComponent,
+          @Optional() @Host() @SkipSelf() parentDir: DFormGroupRuleDirective,
+          private i18n: I18nService,
+          public triggerElementRef: ElementRef,
+          private overlayContainerRef: OverlayContainerRef,
+          private componentFactoryResolver: ComponentFactoryResolver
   ) {
     super(cd, parentDir);
   }
@@ -593,7 +593,7 @@ export class DFormControlRuleDirective extends DAbstractControlRuleDirective imp
 
     /* 国际化适配 */
     if (message && typeof message === 'object') {
-      message = message[this.locale] || message['default'] || message;
+      message = message[this.locale] || message.default || message;
     }
 
     if (this.showType === 'popover') {

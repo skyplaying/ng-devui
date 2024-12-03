@@ -17,7 +17,7 @@ import {
   Output,
   Renderer2,
   TemplateRef,
-  ViewContainerRef
+  ViewContainerRef,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { I18nInterface, I18nService } from 'ng-devui/i18n';
@@ -26,7 +26,10 @@ import {
   AnimationCurves,
   AnimationDuration,
   DateConverter,
-  DefaultDateConverter, DevConfigService, removeClassFromOrigin, WithConfig
+  DefaultDateConverter,
+  DevConfigService,
+  removeClassFromOrigin,
+  WithConfig,
 } from 'ng-devui/utils';
 import { fromEvent, Observable, Subscription } from 'rxjs';
 import { debounceTime, filter, map } from 'rxjs/operators';
@@ -38,13 +41,13 @@ import { DatepickerComponent } from './datepicker.component';
   selector: '[dDatepicker]:not([appendToBody])',
   exportAs: 'datepicker',
   providers: [
-  {
-  provide: NG_VALUE_ACCESSOR,
-  useExisting: forwardRef(() => DatepickerDirective),
-  multi: true,
-  },
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => DatepickerDirective),
+      multi: true,
+    },
   ],
-  })
+})
 export class DatepickerDirective implements OnInit, OnDestroy, ControlValueAccessor {
   @Input() locale: string;
   @Input() cssClass: string;
@@ -158,8 +161,8 @@ export class DatepickerDirective implements OnInit, OnDestroy, ControlValueAcces
     private devConfigService: DevConfigService,
     @Inject(DOCUMENT) private doc: any
   ) {
-    this._dateConfig = datePickerConfig['dateConfig'];
-    this.dateConverter = datePickerConfig['dateConfig'].dateConverter || new DefaultDateConverter();
+    this._dateConfig = datePickerConfig.dateConfig;
+    this.dateConverter = datePickerConfig.dateConfig.dateConverter || new DefaultDateConverter();
     this.selectedDate = null;
     const factory = this.componentFactoryResolver.resolveComponentFactory(DatepickerComponent);
     this.cmpRef = this.viewContainerRef.createComponent(factory, this.viewContainerRef.length, this.injector);
